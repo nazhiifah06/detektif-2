@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>مُحَقِّقُ اللُّغَة · Detektif Bahasa Arab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Figtree:wght@400;500;600;700&family=Reem+Kufi:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#E4ECE7; --surface:#FFFFFF; --ink:#16241E; --muted:#4F6158; --line:#C3D2C9;
+  --band:#1F4A3D; --band-ink:#F3EBD3; --brass:#E2B65A;
+  --primary:#1F4A3D; --on-primary:#FFFFFF;
+  --good:#146B45; --good-bg:#DDF1E6; --bad:#A3243B; --bad-bg:#F9E2E6; --tint:#E9F1EC; --stamp:#A3243B;
+  --ui:'Figtree',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --arabic:'Amiri','Noto Naskh Arabic','Geeza Pro','Traditional Arabic',serif;
+  --display:'Reem Kufi','Amiri','Noto Naskh Arabic',serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1B17; --surface:#182822; --ink:#E8F0EB; --muted:#9DB0A6; --line:#2B4137;
+    --band:#1B3F34; --band-ink:#F3EBD3; --brass:#E0B04F;
+    --primary:#7FD1AE; --on-primary:#0B1B15;
+    --good:#6FD8A6; --good-bg:#12362A; --bad:#FF8FA2; --bad-bg:#3E1B25; --tint:#1F332B; --stamp:#FF8FA2;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1B17; --surface:#182822; --ink:#E8F0EB; --muted:#9DB0A6; --line:#2B4137;
+  --band:#1B3F34; --band-ink:#F3EBD3; --brass:#E0B04F;
+  --primary:#7FD1AE; --on-primary:#0B1B15;
+  --good:#6FD8A6; --good-bg:#12362A; --bad:#FF8FA2; --bad-bg:#3E1B25; --tint:#1F332B; --stamp:#FF8FA2;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ui);line-height:1.55;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.wrap{max-width:680px;margin:0 auto;padding:16px 16px 56px}
+.ar{font-family:var(--arabic)}
+.muted{color:var(--muted)}
+
+/* Top bar */
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px}
+.link{background:none;border:0;padding:8px 10px;margin:-8px -10px;color:var(--primary);font-weight:600;border-radius:8px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1.5px solid var(--line);background:var(--surface);border-radius:99px;font-weight:600;font-size:14px}
+
+/* Case file band: the memorable element */
+.band{position:relative;background:var(--band);color:var(--band-ink);border-radius:18px;padding:26px 22px 22px;border-bottom:5px solid var(--brass)}
+.band .title{font-family:var(--display);font-size:clamp(40px,12vw,58px);line-height:1.3;margin:0}
+.band .sub{margin:6px 0 0;opacity:.9;max-width:44ch}
+.band .case{font-family:var(--arabic);font-size:24px;margin:14px 0 0;line-height:1.7}
+.stamp{display:inline-block;font-family:var(--display);color:var(--stamp);border:2.5px solid var(--stamp);border-radius:8px;padding:0 10px;line-height:1.5;transform:rotate(-5deg);font-size:18px;background:transparent}
+.band .stamp{position:absolute;top:18px;right:18px;color:#FFD9DF;border-color:#FFD9DF}
+
+h2{font-size:17px;margin:26px 0 10px;font-weight:700}
+.card{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:16px;margin-top:12px}
+.card.flat{padding:0;overflow:hidden}
+p{margin:0 0 10px}
+.steps{margin:10px 0 0;padding-left:20px}
+.steps li{margin-bottom:6px}
+
+/* Hub lists */
+.group{margin-top:12px;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;overflow:hidden}
+.group-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;background:var(--tint);border-bottom:1.5px solid var(--line)}
+.group-head b{font-weight:700}
+.group-head .ar{font-size:24px;color:var(--primary)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:13px 16px;border:0;border-top:1.5px solid var(--line);background:transparent;text-align:start}
+.group-head + .row{border-top:0}
+.row:hover{background:var(--tint)}
+.row .kind{display:block;font-size:13.5px;color:var(--muted)}
+.row .name{font-weight:600}
+.row .ar{font-size:26px;color:var(--primary)}
+.tag-done{font-size:15px;padding:0 8px}
+
+/* Scene */
+.sc-title{margin:0;font-size:22px;font-weight:700}
+.sc-place{margin:0 0 2px;color:var(--muted);font-size:14px}
+.speaker{margin:0 0 4px;color:var(--muted);font-size:14px;font-weight:600}
+.arblock{font-family:var(--arabic);font-size:clamp(24px,6.4vw,30px);line-height:2.15;direction:rtl;text-align:right;margin:0}
+.trans{margin:12px 0 0;padding:12px 14px;background:var(--tint);border-radius:10px;font-size:15.5px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.btn{display:inline-block;padding:13px 18px;border:0;border-radius:12px;background:var(--primary);color:var(--on-primary);font-weight:700;font-size:16px}
+.btn:hover{filter:brightness(1.1)}
+.btn.block{display:block;width:100%}
+.btn.ghost{background:transparent;color:var(--primary);border:1.5px solid var(--primary)}
+.btn[disabled]{opacity:.45;cursor:not-allowed;filter:none}
+.note{color:var(--muted);font-size:14px;margin:10px 0 0}
+
+.qprog{margin:0 0 4px;color:var(--muted);font-size:14px;font-weight:600}
+.qtext{margin:0 0 12px;font-size:18px;font-weight:600}
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{width:100%;text-align:start;padding:13px 15px;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;font-size:16.5px}
+.opt:hover:not([disabled]){border-color:var(--primary)}
+.opt.ar-opt{font-family:var(--arabic);font-size:27px;direction:rtl;text-align:right;line-height:1.9}
+.opt.correct{border-color:var(--good);background:var(--good-bg)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-bg);opacity:.85}
+.opt[disabled]{cursor:default}
+.fb{margin-top:14px;padding:14px 16px;border-radius:12px;border:1.5px solid var(--line)}
+.fb.good{background:var(--good-bg);border-color:var(--good)}
+.fb.bad{background:var(--bad-bg);border-color:var(--bad)}
+.fb b{display:block;margin-bottom:2px}
+.fb.good b{color:var(--good)}
+.fb.bad b{color:var(--bad)}
+.fb p{margin:0}
+
+/* Clues */
+.clue{border-inline-start:5px solid var(--brass);padding:12px 14px;background:var(--surface);border-radius:10px;border-top:1.5px solid var(--line);border-right:1.5px solid var(--line);border-bottom:1.5px solid var(--line);margin-top:10px}
+.clue .t{font-weight:700;margin:0}
+.clue .w{font-size:13.5px;color:var(--muted);margin:0 0 4px}
+.clue .a{font-family:var(--arabic);font-size:24px;direction:rtl;text-align:right;line-height:1.9;margin:4px 0}
+.clue .i{margin:0}
+.saved{background:var(--good-bg);border:1.5px solid var(--good);border-radius:12px;padding:14px 16px;margin-top:14px}
+.saved b{color:var(--good)}
+
+/* Suspects & accusation */
+.sus{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.sus .ar{font-size:30px;color:var(--primary)}
+.pick{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:start;padding:13px 15px;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;margin-top:9px}
+.pick[aria-pressed="true"]{border-color:var(--primary);background:var(--tint);box-shadow:inset 5px 0 0 var(--primary)}
+.pick .ar{font-size:30px;color:var(--primary)}
+.pick small{display:block;color:var(--muted)}
+.cpick{display:block;width:100%;text-align:start;padding:11px 14px;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;margin-top:9px}
+.cpick[aria-pressed="true"]{border-color:var(--primary);background:var(--tint);box-shadow:inset 5px 0 0 var(--primary)}
+.cpick .a{font-family:var(--arabic);font-size:22px;direction:rtl;text-align:right;display:block;line-height:1.8}
+.cpick .t{font-weight:600}
+
+/* Ending */
+.dialog{margin-top:14px}
+.dialog .ar{font-size:26px;direction:rtl;text-align:right;line-height:2.1;margin:0}
+.rank{font-family:var(--display);font-size:44px;text-align:center;margin:6px 0 0;color:var(--primary);line-height:1.4}
+.stats{display:flex;gap:10px;margin-top:14px}
+.stats div{flex:1;text-align:center;padding:12px 6px;background:var(--tint);border-radius:12px}
+.stats b{display:block;font-size:24px}
+.stats span{font-size:13.5px;color:var(--muted)}
+
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+/* =========================================================
+   DATA: kasus 1, Kitab Ad-Duktur al-Mafqud
+   ========================================================= */
+const PLACES = [
+  {id:'office',  name:'Kantor Dr. Yusuf', ar:'مَكْتَبُ الدُّكْتُورِ', scenes:['dr','note']},
+  {id:'library', name:'Perpustakaan',     ar:'الْمَكْتَبَةُ',        scenes:['lib']},
+  {id:'canteen', name:'Kantin',           ar:'الْمَقْصَفُ',          scenes:['kantin']},
+  {id:'gate',    name:'Pintu masuk gedung', ar:'مَدْخَلُ الْمَبْنَى', scenes:['guard']}
+];
+const SUSPECTS = [
+  {id:'khalid', ar:'خَالِد', name:'Khalid', desc:'Mahasiswa semester 3, suka membaca', scene:'askKhalid'},
+  {id:'ahmad',  ar:'أَحْمَد', name:'Ahmad',  desc:'Mahasiswa, teman sekelas Khalid',    scene:'askAhmad'},
+  {id:'laila',  ar:'لَيْلَى', name:'Laila',  desc:'Mahasiswi, anggota klub olahraga',    scene:'askLaila'},
+  {id:'sarah',  ar:'سَارَة', name:'Sarah',  desc:'Mahasiswi yang sedang menyusun penelitian', scene:'askSarah'}
+];
+const Q_MASC = 'أَيْنَ كُنْتَ بَعْدَ الظُّهْرِ؟';
+const Q_FEM  = 'أَيْنَ كُنْتِ بَعْدَ الظُّهْرِ؟';
+
+function askOpts(name, male, wrongAr, wrongMean){
+  const okAr = male ? Q_MASC : Q_FEM, badAr = male ? Q_FEM : Q_MASC;
+  return [
+    {ar:okAr, ok:true},
+    {ar:badAr, why: male
+      ? `Ini bentuk untuk perempuan: كُنْتِ (kasrah di akhir). ${name} laki-laki, jadi gunakan كُنْتَ (fathah).`
+      : `Ini bentuk untuk laki-laki: كُنْتَ (fathah di akhir). ${name} perempuan, jadi gunakan كُنْتِ (kasrah).`},
+    {ar:wrongAr, why:`Artinya "${wrongMean}". Itu bukan pertanyaan tentang di mana ${name} berada setelah Zuhur.`}
+  ];
+}
+
+const SCENES = {
+  dr:{place:'Kantor Dr. Yusuf', title:'Kesaksian Dr. Yusuf', mode:'listen', speaker:'الدُّكْتُور يُوسُف',
+    intro:'Dr. Yusuf menceritakan apa yang terjadi. Dengarkan baik-baik, lalu jawab pertanyaan.',
+    text:'السَّلَامُ عَلَيْكُمْ. كِتَابِي مَفْقُودٌ! كَانَ الْكِتَابُ الْأَخْضَرُ عَلَى مَكْتَبِي قَبْلَ الظُّهْرِ. ثُمَّ ذَهَبْتُ إِلَى الْمَسْجِدِ وَتَرَكْتُ الْبَابَ مَفْتُوحًا. وَبَعْدَ الصَّلَاةِ رَجَعْتُ، وَلَكِنَّ الْكِتَابَ لَمْ يَكُنْ عَلَى الْمَكْتَبِ.',
+    tr:'Assalamu\'alaikum. Bukuku hilang! Buku hijau itu ada di mejaku sebelum Zuhur. Lalu aku pergi ke masjid dan membiarkan pintu terbuka. Setelah salat aku kembali, tetapi buku itu sudah tidak ada di meja.',
+    qs:[
+      {q:'Kapan buku hijau itu masih ada di meja?', opts:['Sebelum Zuhur','Setelah Zuhur','Setelah salat','Malam hari'], a:0,
+       why:'قَبْلَ = sebelum, بَعْدَ = sesudah. Perhatikan dua kata ini di sepanjang kasus.'},
+      {q:'Apa yang dilakukan Dr. Yusuf pada pintu kantor saat pergi ke masjid?', opts:['Membiarkannya terbuka','Menguncinya','Menitipkan kunci ke penjaga','Menutupnya rapat tanpa kunci'], a:0,
+       why:'تَرَكْتُ الْبَابَ مَفْتُوحًا = aku membiarkan pintu terbuka.'}
+    ],
+    clue:{id:'c_dr', title:'Waktu buku hilang', ar:'كَانَ الْكِتَابُ عَلَى مَكْتَبِي قَبْلَ الظُّهْرِ.',
+      summary:'Buku hijau masih ada di meja sebelum Zuhur. Dr. Yusuf ke masjid dengan pintu terbuka dan menemukan buku hilang setelah salat.'}},
+
+  note:{place:'Kantor Dr. Yusuf', title:'Catatan di bawah pintu', mode:'read', speaker:'catatan',
+    intro:'Kamu menemukan secarik kertas yang diselipkan dari luar di bawah pintu kantor.',
+    text:'يَا دُكْتُورُ، أَحْتَاجُ إِلَى الْكِتَابِ الْأَخْضَرِ لِبَحْثِي. سَأَعُودُ بَعْدَ الظُّهْرِ. طَالِبَتُكَ',
+    tr:'Dokter, aku butuh buku hijau untuk penelitianku. Aku akan kembali setelah Zuhur. Mahasiswimu.',
+    qs:[
+      {q:'Apa isi catatan itu?', opts:['Penulis butuh buku hijau untuk penelitiannya dan akan kembali setelah Zuhur','Penulis mengembalikan buku hijau dan pergi sebelum Zuhur','Penulis mengajak Dr. Yusuf makan di kantin setelah Zuhur','Penulis memberi tahu bahwa ia tidak masuk kuliah'], a:0},
+      {q:'Dari kata طَالِبَتُكَ di akhir catatan, apa yang bisa disimpulkan tentang penulisnya?', opts:['Penulisnya mahasiswi (perempuan)','Penulisnya mahasiswa (laki-laki)','Penulisnya dosen lain','Penulisnya petugas perpustakaan'], a:0,
+       why:'طَالِب = mahasiswa, طَالِبَة = mahasiswi (ta marbuthah menandakan perempuan), dan ـكَ = milikmu.'}
+    ],
+    clue:{id:'c_note', title:'Catatan di bawah pintu', ar:'سَأَعُودُ بَعْدَ الظُّهْرِ. طَالِبَتُكَ',
+      summary:'Penulisnya seorang mahasiswi yang butuh buku hijau dan berencana datang lagi setelah Zuhur.'}},
+
+  lib:{place:'Perpustakaan', title:'Kesaksian pustakawan', mode:'listen', speaker:'أَمِينُ الْمَكْتَبَةِ',
+    intro:'Pustakawan menjawab pertanyaanmu tentang siapa yang ia lihat hari itu.',
+    text:'أَنَا أَمِينُ الْمَكْتَبَةِ. رَأَيْتُ خَالِدًا فِي الْمَكْتَبَةِ بَعْدَ الظُّهْرِ. جَلَسَ هُنَاكَ حَتَّى الْعَصْرِ.',
+    tr:'Aku pustakawan. Aku melihat Khalid di perpustakaan setelah Zuhur. Ia duduk di sana sampai Asar.',
+    qs:[
+      {q:'Apa yang dilihat pustakawan?', opts:['Khalid di perpustakaan setelah Zuhur','Khalid di perpustakaan sebelum Zuhur','Ahmad di perpustakaan setelah Zuhur','Khalid di kantin setelah Zuhur'], a:0},
+      {q:'Sampai kapan Khalid duduk di perpustakaan?', opts:['Sampai Asar','Sampai Zuhur','Sampai Magrib','Sampai pagi'], a:0, why:'حَتَّى الْعَصْرِ = sampai (waktu) Asar.'}
+    ],
+    clue:{id:'c_lib', title:'Pustakawan melihat Khalid', ar:'رَأَيْتُ خَالِدًا فِي الْمَكْتَبَةِ بَعْدَ الظُّهْرِ.',
+      summary:'Khalid ada di perpustakaan dari setelah Zuhur sampai Asar.'}},
+
+  kantin:{place:'Kantin', title:'Kesaksian penjual kantin', mode:'listen', speaker:'بَائِعُ الْمَقْصَفِ',
+    intro:'Penjual kantin ingat siapa saja yang duduk lama siang itu.',
+    text:'أَهْلًا بِكَ! جَلَسَ أَحْمَدُ فِي الْمَقْصَفِ مِنَ الظُّهْرِ إِلَى الْعَصْرِ. أَكَلَ نُودِلَةً وَشَرِبَ مَاءً.',
+    tr:'Selamat datang! Ahmad duduk di kantin dari Zuhur sampai Asar. Ia makan mi dan minum air.',
+    qs:[
+      {q:'Apa yang dikatakan penjual kantin?', opts:['Ahmad duduk di kantin dari Zuhur sampai Asar','Ahmad membeli makanan lalu pergi ke kantor dosen','Ahmad hanya di kantin sebelum Zuhur','Khalid makan mi di kantin'], a:0},
+      {q:'Apa yang dimakan Ahmad?', opts:['Mi','Nasi','Roti','Ayam'], a:0, why:'نُودِلَة = mi (kata serapan dari noodle).'}
+    ],
+    clue:{id:'c_kantin', title:'Penjual kantin melihat Ahmad', ar:'جَلَسَ أَحْمَدُ فِي الْمَقْصَفِ مِنَ الظُّهْرِ إِلَى الْعَصْرِ.',
+      summary:'Ahmad ada di kantin dari Zuhur sampai Asar.'}},
+
+  guard:{place:'Pintu masuk gedung', title:'Kesaksian penjaga gedung', mode:'listen', speaker:'حَارِسُ الْمَبْنَى',
+    intro:'Penjaga gedung mencatat siapa yang keluar dan masuk. Dengarkan urutan waktunya.',
+    text:'أَنَا حَارِسُ الْمَبْنَى. قَبْلَ الظُّهْرِ رَأَيْتُ لَيْلَى تَخْرُجُ مِنَ الْمَبْنَى وَمَعَهَا حَقِيبَةٌ كَبِيرَةٌ. وَبَعْدَ الظُّهْرِ رَأَيْتُ سَارَةَ تَدْخُلُ الْمَبْنَى.',
+    tr:'Aku penjaga gedung. Sebelum Zuhur aku melihat Laila keluar dari gedung membawa tas besar. Dan setelah Zuhur aku melihat Sarah masuk ke gedung.',
+    qs:[
+      {q:'Apa yang dilihat penjaga SEBELUM Zuhur?', opts:['Laila keluar gedung membawa tas besar','Sarah masuk gedung','Laila masuk gedung','Sarah keluar gedung membawa tas besar'], a:0,
+       why:'قَبْلَ الظُّهْرِ = sebelum Zuhur. تَخْرُجُ = keluar.'},
+      {q:'Apa yang dilihat penjaga SETELAH Zuhur?', opts:['Sarah masuk gedung','Laila keluar membawa tas','Khalid masuk gedung','Sarah keluar gedung'], a:0,
+       why:'بَعْدَ الظُّهْرِ = setelah Zuhur. تَدْخُلُ = masuk.'}
+    ],
+    clue:{id:'c_guard', title:'Penjaga gedung', ar:'قَبْلَ الظُّهْرِ رَأَيْتُ لَيْلَى... وَبَعْدَ الظُّهْرِ رَأَيْتُ سَارَةَ تَدْخُلُ الْمَبْنَى.',
+      summary:'Sebelum Zuhur: Laila keluar gedung membawa tas besar. Setelah Zuhur: Sarah masuk gedung.'}},
+
+  askKhalid:{place:'Wawancara', title:'Wawancara Khalid', mode:'read', speaker:'خَالِد',
+    intro:'Kamu menemukan Khalid di serambi gedung.',
+    ask:{intent:'Tanyakan kepada Khalid (laki-laki): di mana ia berada setelah Zuhur?', opts:askOpts('Khalid',true,'مَتَى ذَهَبْتَ إِلَى الْمَسْجِدِ؟','Kapan kamu pergi ke masjid?')},
+    text:'كُنْتُ فِي الْمَكْتَبَةِ بَعْدَ الظُّهْرِ. قَرَأْتُ كِتَابًا عَنِ التَّارِيخِ.',
+    tr:'Aku di perpustakaan setelah Zuhur. Aku membaca buku tentang sejarah.',
+    qs:[{q:'Di mana Khalid mengaku berada setelah Zuhur?', opts:['Di perpustakaan','Di kantin','Di lapangan','Di rumah'], a:0}],
+    clue:{id:'c_ask_khalid', title:'Pengakuan Khalid', ar:'كُنْتُ فِي الْمَكْتَبَةِ بَعْدَ الظُّهْرِ.', summary:'Khalid mengaku di perpustakaan setelah Zuhur dan membaca buku sejarah.'}},
+
+  askAhmad:{place:'Wawancara', title:'Wawancara Ahmad', mode:'read', speaker:'أَحْمَد',
+    intro:'Kamu bertemu Ahmad di tangga kampus.',
+    ask:{intent:'Tanyakan kepada Ahmad (laki-laki): di mana ia berada setelah Zuhur?', opts:askOpts('Ahmad',true,'مَنْ كَانَ مَعَكَ فِي الصَّبَاحِ؟','Siapa yang bersamamu di pagi hari?')},
+    text:'كُنْتُ فِي الْمَقْصَفِ مَعَ أَصْدِقَائِي. أَكَلْنَا وَضَحِكْنَا كَثِيرًا.',
+    tr:'Aku di kantin bersama teman-temanku. Kami makan dan banyak tertawa.',
+    qs:[{q:'Dengan siapa Ahmad berada di kantin?', opts:['Dengan teman-temannya','Dengan dosennya','Sendirian','Dengan penjaga gedung'], a:0, why:'مَعَ أَصْدِقَائِي = bersama teman-temanku.'}],
+    clue:{id:'c_ask_ahmad', title:'Pengakuan Ahmad', ar:'كُنْتُ فِي الْمَقْصَفِ مَعَ أَصْدِقَائِي.', summary:'Ahmad mengaku di kantin bersama teman-temannya.'}},
+
+  askLaila:{place:'Wawancara', title:'Wawancara Laila', mode:'read', speaker:'لَيْلَى',
+    intro:'Kamu menemui Laila di dekat lapangan olahraga.',
+    ask:{intent:'Tanyakan kepada Laila (perempuan): di mana ia berada setelah Zuhur?', opts:askOpts('Laila',false,'لِمَاذَا ذَهَبْتِ إِلَى الْمَطْعَمِ؟','Mengapa kamu pergi ke restoran?')},
+    text:'كُنْتُ فِي الْمَلْعَبِ بَعْدَ الظُّهْرِ. فِي حَقِيبَتِي مَلَابِسُ لِلرِّيَاضَةِ.',
+    tr:'Aku di lapangan setelah Zuhur. Di tasku ada pakaian olahraga.',
+    qs:[{q:'Apa isi tas Laila menurut pengakuannya?', opts:['Pakaian olahraga','Buku hijau','Makanan','Laptop'], a:0}],
+    clue:{id:'c_ask_laila', title:'Pengakuan Laila', ar:'فِي حَقِيبَتِي مَلَابِسُ لِلرِّيَاضَةِ.', summary:'Laila mengaku di lapangan setelah Zuhur; tasnya berisi pakaian olahraga.'}},
+
+  askSarah:{place:'Wawancara', title:'Wawancara Sarah', mode:'read', speaker:'سَارَة',
+    intro:'Kamu menemui Sarah di taman kampus.',
+    ask:{intent:'Tanyakan kepada Sarah (perempuan): di mana ia berada setelah Zuhur?', opts:askOpts('Sarah',false,'مَاذَا أَكَلْتِ بَعْدَ الظُّهْرِ؟','Apa yang kamu makan setelah Zuhur?')},
+    text:'كُنْتُ فِي الْبَيْتِ بَعْدَ الظُّهْرِ. لَمْ أَدْخُلِ الْجَامِعَةَ.',
+    tr:'Aku di rumah setelah Zuhur. Aku tidak masuk kampus.',
+    qs:[{q:'Apa yang dikatakan Sarah?', opts:['Ia di rumah dan tidak masuk kampus setelah Zuhur','Ia di perpustakaan setelah Zuhur','Ia di kantin dan masuk kampus','Ia di masjid bersama Dr. Yusuf'], a:0,
+         why:'لَمْ أَدْخُلِ = aku tidak masuk. الْجَامِعَة = universitas/kampus.'}],
+    clue:{id:'c_ask_sarah', title:'Pengakuan Sarah', ar:'لَمْ أَدْخُلِ الْجَامِعَةَ.', summary:'Sarah mengaku di rumah dan tidak masuk kampus setelah Zuhur.'}}
+};
+const ALL_CLUE_IDS = Object.values(SCENES).map(s => s.clue.id);
+const STRONG = ['c_note','c_guard','c_ask_sarah'];
+
+const ENDING = [
+  {sp:'سَارَة', ar:'أَنَا آسِفَةٌ يَا دُكْتُورُ. كُنْتُ أَحْتَاجُ إِلَى الْكِتَابِ، وَلَكِنَّنِي لَمْ أَسْتَأْذِنْ.', tr:'Maaf, Dok. Aku butuh buku itu, tetapi aku tidak meminta izin.'},
+  {sp:'الدُّكْتُور يُوسُف', ar:'الصِّدْقُ أَفْضَلُ. يُمْكِنُكِ أَنْ تَقْرَئِي الْكِتَابَ، وَلَكِنِ اسْتَأْذِنِي أَوَّلًا.', tr:'Jujur itu lebih baik. Kamu boleh membaca buku itu, tetapi minta izin dulu.'}
+];
+
+/* =========================================================
+   STATE & HELPERS
+   ========================================================= */
+const $app = document.getElementById('app');
+let G, V, SC, AC;
+function newGame(){ G = {clues:[], done:{}, mistakes:0, hints:0, hinted:{}, wrongAcc:0}; }
+newGame();
+
+const shuffle = a => { for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const canSpeak = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+function arabicVoice(){ try{ const v = speechSynthesis.getVoices(); if(!v.length) return null; return v.some(x => /^ar/i.test(x.lang)); }catch(e){ return null; } }
+function speak(t){ if(!canSpeak) return; try{ speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang='ar-SA'; u.rate=.8; speechSynthesis.speak(u); }catch(e){} }
+function addHint(key){ if(!G.hinted[key]){ G.hinted[key]=1; G.hints++; } }
+function loadBest(){ try{ return JSON.parse(localStorage.getItem('muhaqqiq:best')||'null'); }catch(e){ return null; } }
+function saveBest(b){ try{ localStorage.setItem('muhaqqiq:best', JSON.stringify(b)); }catch(e){} }
+const clueById = id => Object.values(SCENES).find(s => s.clue.id===id).clue;
+const placeOf = id => Object.values(SCENES).find(s => s.clue.id===id).place;
+
+function topbar(back){
+  return `<div class="top">
+    ${back ? `<button class="link" data-act="${back.act}">${back.label}</button>` : '<span></span>'}
+    <button class="pill" data-act="notebook" aria-label="Buka buku catatan">📓 Buku catatan (${G.clues.length})</button>
+  </div>`;
+}
+
+</script>
+<script>
+function clueCard2(c){
+  return `<div class="clue">
+    <p class="w">${placeOf(c.id)}</p>
+    <p class="t">${c.title}</p>
+    <p class="a" lang="ar" dir="rtl">${c.ar}</p>
+    <p class="i">${c.summary}</p>
+  </div>`;
+}
+
+/* =========================================================
+   VIEWS
+   ========================================================= */
+function viewIntro(){
+  V = 'intro';
+  const best = loadBest();
+  $app.innerHTML = `
+    <div class="band">
+      <span class="stamp" lang="ar" dir="rtl">سِرِّيٌّ</span>
+      <h1 class="title" lang="ar" dir="rtl">مُحَقِّقُ اللُّغَة</h1>
+      <p class="sub">Detektif Bahasa Arab. Pecahkan kasus dengan membaca, mendengar, dan bertanya dalam bahasa Arab.</p>
+      <p class="case" lang="ar" dir="rtl">الْقَضِيَّةُ الْأُولَى: كِتَابُ الدُّكْتُورِ الْمَفْقُودُ</p>
+    </div>
+    <div class="card">
+      <p><b>Kasus 1: Buku dosen yang hilang.</b> Dr. Yusuf, dosen bahasa Arab, kehilangan buku hijau dari kantornya. Pintu kantor terbuka saat ia salat Zuhur. Ada empat mahasiswa di sekitar gedung hari itu, dan siapa pun bisa jadi pelakunya.</p>
+      <p>Semua petunjuk memakai bahasa Arab. Pahami dengan teliti, karena satu kata kecil bisa mengubah siapa yang bersalah.</p>
+      <ol class="steps">
+        <li>Kunjungi tempat-tempat di peta, lalu dengarkan atau baca petunjuknya.</li>
+        <li>Jawab pertanyaan pemahaman agar petunjuk masuk ke buku catatan.</li>
+        <li>Wawancarai tersangka dengan pertanyaan Arab yang tepat.</li>
+        <li>Tuduh satu orang dan tunjukkan dua bukti yang mendukung.</li>
+      </ol>
+      <p class="note">Terjemahan dan teks bantuan boleh dipakai, tetapi mengurangi peringkat akhir.${best ? ` Peringkat terbaikmu: <b class="ar" style="font-size:20px">${best.rankAr}</b>.` : ''}</p>
+      <div class="actions"><button class="btn block" data-act="start">Buka berkas kasus</button></div>
+    </div>`;
+}
+
+function viewHub(){
+  V = 'hub';
+  const n = G.clues.length, total = ALL_CLUE_IDS.length;
+  const sceneRow = (sid, kind) => {
+    const s = SCENES[sid], d = G.done[sid];
+    return `<button class="row" data-act="scene" data-v="${sid}">
+      <span><span class="name">${s.title}</span><span class="kind">${kind}</span></span>
+      ${d ? '<span class="stamp tag-done" lang="ar" dir="rtl">تَمَّ</span>' : ''}
+    </button>`;
+  };
+  const places = PLACES.map(p => `
+    <div class="group">
+      <div class="group-head"><b>${p.name}</b><span class="ar" lang="ar" dir="rtl">${p.ar}</span></div>
+      ${p.scenes.map(sid => sceneRow(sid, SCENES[sid].mode==='listen' ? 'Dengar kesaksian' : 'Baca petunjuk')).join('')}
+    </div>`).join('');
+  const sus = `<div class="group">${SUSPECTS.map(s => {
+    const d = G.done[s.scene];
+    return `<button class="row" data-act="scene" data-v="${s.scene}">
+      <span><span class="name">${s.name}</span><span class="kind">${s.desc}</span></span>
+      <span class="sus"><span class="ar" lang="ar" dir="rtl">${s.ar}</span>${d ? '<span class="stamp tag-done" lang="ar" dir="rtl">تَمَّ</span>' : ''}</span>
+    </button>`; }).join('')}</div>`;
+  $app.innerHTML = `
+    ${topbar(null)}
+    <div class="band">
+      <h1 class="title" lang="ar" dir="rtl" style="font-size:clamp(34px,10vw,46px)">كِتَابُ الدُّكْتُورِ الْمَفْقُودُ</h1>
+      <p class="sub">Kasus 1. Bukti terkumpul: <b>${n} dari ${total}</b></p>
+    </div>
+    <h2>Tempat yang bisa diperiksa</h2>
+    ${places}
+    <h2>Wawancara tersangka</h2>
+    ${sus}
+    <div class="card">
+      <p><b>Sudah punya dugaan?</b></p>
+      <p class="note" style="margin-top:0">${n>=4 ? 'Kamu boleh mengajukan tuduhan. Salah tuduh mengurangi peringkat.' : 'Kumpulkan minimal 4 bukti sebelum menuduh.'}</p>
+      <div class="actions"><button class="btn" data-act="accuse" ${n>=4?'':'disabled'}>Ajukan tuduhan</button></div>
+    </div>`;
+}
+
+/* ---------- Scene ---------- */
+function openScene(id){
+  const s = SCENES[id], done = !!G.done[id];
+  SC = {id, askDone: !s.ask || done, qi: done ? s.qs.length : 0, order:null, orderQi:-1, wrong:{}, solved:false,
+        textShown: done || s.mode==='read' || !canSpeak || arabicVoice()===false, trShown: done, askWrong:{}, askMsg:null};
+  viewScene();
+}
+function viewScene(){
+  V = 'scene';
+  const s = SCENES[SC.id];
+  let html = topbar({act:'hub', label:'Kembali ke peta'});
+  html += `<div class="card" style="margin-top:0">
+    <p class="sc-place">${s.place}</p><h1 class="sc-title">${s.title}</h1>
+    <p class="note" style="margin-top:6px">${s.intro}</p></div>`;
+
+  if(!SC.askDone){
+    html += askPanel(s);
+  } else {
+    html += textPanel(s);
+    html += qPanel(s);
+  }
+  $app.innerHTML = html;
+}
+function askPanel(s){
+  const opts = SC.askOrder || (SC.askOrder = shuffle(s.ask.opts.map((_,i)=>i)));
+  const items = opts.map(i => {
+    const o = s.ask.opts[i], w = SC.askWrong[i];
+    return `<button class="opt ar-opt ${w?'wrong':''}" lang="ar" dir="rtl" data-act="askpick" data-v="${i}" ${w?'disabled':''}>${o.ar}</button>`;
+  }).join('');
+  return `<div class="card">
+    <p class="qprog">Pilih pertanyaan yang tepat</p>
+    <p class="qtext">${s.ask.intent}</p>
+    <div class="opts">${items}</div>
+    ${SC.askMsg ? `<div class="fb bad"><b>Belum tepat.</b><p>${SC.askMsg}</p></div>` : ''}
+  </div>`;
+}
+function textPanel(s){
+  if(s.mode==='listen' && !SC.textShown){
+    return `<div class="card">
+      <p class="speaker">Saksi berbicara dalam bahasa Arab</p>
+      <p>Putar rekamannya dan dengarkan dengan teliti. Kamu bisa memutarnya berkali-kali.</p>
+      <div class="actions">
+        <button class="btn" data-act="play">🔊 Putar kesaksian</button>
+        <button class="btn ghost" data-act="showText">Tampilkan teks Arab (bantuan)</button>
+      </div>
+      <p class="note">Suara tidak keluar? Tampilkan teks Arabnya saja.</p>
+    </div>`;
+  }
+  const speakBtn = canSpeak ? `<button class="btn ghost" data-act="play">🔊 Putar</button>` : '';
+  const trBtn = SC.trShown ? '' : `<button class="btn ghost" data-act="showTr">Lihat terjemahan (bantuan)</button>`;
+  return `<div class="card">
+    <p class="speaker">${s.speaker}</p>
+    <p class="arblock" lang="ar" dir="rtl">${s.text}</p>
+    <div class="actions">${speakBtn}${trBtn}</div>
+    ${SC.trShown ? `<p class="trans">${s.tr}</p>` : ''}
+  </div>`;
+}
+function qPanel(s){
+  if(SC.qi >= s.qs.length){
+    const c = s.clue;
+    return `<div class="saved"><b>Bukti tersimpan di buku catatan.</b>
+      <p style="margin:6px 0 0">${c.title}: ${c.summary}</p></div>
+      <div class="actions"><button class="btn" data-act="hub">Kembali ke peta</button></div>`;
+  }
+  const q = s.qs[SC.qi];
+  if(SC.orderQi !== SC.qi){ SC.order = shuffle(q.opts.map((_,i)=>i)); SC.orderQi = SC.qi; SC.wrong = {}; SC.solved = false; }
+  const items = SC.order.map(i => {
+    const cls = SC.solved && i===q.a ? 'correct' : (SC.wrong[i] ? 'wrong' : '');
+    const dis = SC.solved || SC.wrong[i];
+    return `<button class="opt ${cls}" data-act="answer" data-v="${i}" ${dis?'disabled':''}>${q.opts[i]}</button>`;
+  }).join('');
+  let fb = '';
+  if(SC.solved){
+    const last = SC.qi === s.qs.length-1;
+    fb = `<div class="fb good"><b>Tepat.</b>${q.why ? `<p>${q.why}</p>` : ''}</div>
+      <div class="actions"><button class="btn" data-act="next">${last ? 'Simpan bukti ke buku catatan' : 'Pertanyaan berikutnya'}</button></div>`;
+  } else if(Object.keys(SC.wrong).length){
+    fb = `<div class="fb bad"><b>Belum tepat.</b><p>Dengarkan atau baca lagi teksnya, lalu coba pilihan lain.</p></div>`;
+  }
+  return `<div class="card">
+    <p class="qprog">Pertanyaan ${SC.qi+1} dari ${s.qs.length}</p>
+    <p class="qtext">${q.q}</p>
+    <div class="opts">${items}</div>${fb}
+  </div>`;
+}
+
+/* ---------- Notebook ---------- */
+function viewNotebook(from){
+  V = 'notebook';
+  const body = G.clues.length
+    ? G.clues.map(id => clueCard2(clueById(id))).join('')
+    : `<div class="card"><p><b>Belum ada bukti.</b></p><p class="note" style="margin:0">Kunjungi satu tempat di peta, pahami kesaksiannya, dan buktinya akan tersimpan di sini.</p></div>`;
+  $app.innerHTML = `
+    <div class="top"><button class="link" data-act="${from==='scene' ? 'backscene' : 'hub'}">Kembali</button><span></span></div>
+    <h1 class="sc-title">Buku catatan</h1>
+    <p class="note" style="margin-top:4px">Kalimat Arab di tiap catatan adalah kutipan kuncinya.</p>
+    ${body}`;
+}
+
+/* ---------- Accusation ---------- */
+function viewAccuse(){
+  V = 'accuse';
+  AC = AC || {suspect:null, picks:[], msg:null};
+  const sus = SUSPECTS.map(s => `<button class="pick" data-act="pickSus" data-v="${s.id}" aria-pressed="${AC.suspect===s.id}">
+    <span><b>${s.name}</b><small>${s.desc}</small></span><span class="ar" lang="ar" dir="rtl">${s.ar}</span></button>`).join('');
+  const cl = G.clues.map(id => { const c = clueById(id);
+    return `<button class="cpick" data-act="pickClue" data-v="${id}" aria-pressed="${AC.picks.includes(id)}">
+      <span class="t">${c.title}</span><span class="a" lang="ar" dir="rtl">${c.ar}</span></button>`; }).join('');
+  $app.innerHTML = `
+    <div class="top"><button class="link" data-act="hub">Kembali ke peta</button><button class="pill" data-act="notebook">📓 Buku catatan (${G.clues.length})</button></div>
+    <h1 class="sc-title">Ajukan tuduhan</h1>
+    <h2>1. Siapa pelakunya?</h2>
+    ${sus}
+    <h2>2. Pilih dua bukti yang paling kuat</h2>
+    ${cl}
+    ${AC.msg ? `<div class="fb bad" style="margin-top:16px"><b>${AC.msg.title}</b><p>${AC.msg.body}</p></div>` : ''}
+    <div class="actions"><button class="btn block" data-act="submitAcc" ${AC.suspect && AC.picks.length===2 ? '' : 'disabled'}>Tuduh sekarang</button></div>`;
+}
+function judge(){
+  const sid = AC.suspect, picks = AC.picks;
+  if(sid !== 'sarah'){
+    G.wrongAcc++;
+    let body;
+    if(sid==='khalid') body = G.clues.includes('c_lib') ? 'Pustakawan melihat Khalid di perpustakaan setelah Zuhur, tepat saat buku hilang. Ia punya alibi.' : 'Belum ada bukti kuat. Periksa dulu apakah Khalid punya alibi.';
+    else if(sid==='ahmad') body = G.clues.includes('c_kantin') ? 'Penjual kantin melihat Ahmad duduk di kantin dari Zuhur sampai Asar. Ia punya alibi.' : 'Belum ada bukti kuat. Periksa dulu apakah Ahmad punya alibi.';
+    else body = G.clues.includes('c_guard') ? 'Baca lagi kesaksian penjaga gedung. Laila keluar membawa tas besar pada waktu yang mana, قَبْلَ atau بَعْدَ Zuhur? Saat itu buku masih di meja.' : 'Belum ada bukti kuat. Periksa kesaksian penjaga gedung.';
+    AC.msg = {title:'Tuduhanmu belum tepat.', body}; AC.picks = []; viewAccuse(); return;
+  }
+  const good = picks.filter(p => STRONG.includes(p)).length;
+  if(good < 2){
+    G.wrongAcc++;
+    AC.msg = {title:'Dugaanmu mengarah ke orang yang tepat, tetapi buktinya belum kuat.',
+      body:'Pilih bukti yang menunjukkan siapa yang ada di gedung saat buku hilang, siapa penulis catatan, atau siapa yang kata-katanya bertentangan dengan saksi.'};
+    AC.picks = []; viewAccuse(); return;
+  }
+  viewEnding();
+}
+
+/* ---------- Ending ---------- */
+function viewEnding(){
+  V = 'ending';
+  const pts = G.mistakes + G.hints*0.5 + G.wrongAcc*2;
+  const rank = pts<=3 ? {ar:'مُحَقِّقٌ بَارِعٌ', id:'Detektif yang piawai'} : pts<=8 ? {ar:'مُحَقِّقٌ مُجْتَهِدٌ', id:'Detektif yang tekun'} : {ar:'مُحَقِّقٌ مُبْتَدِئٌ', id:'Detektif pemula, terus berlatih'};
+  const prev = loadBest();
+  if(!prev || pts < prev.pts) saveBest({pts, rankAr:rank.ar});
+  $app.innerHTML = `
+    <div class="band">
+      <span class="stamp" lang="ar" dir="rtl">تَمَّ الْحَلُّ</span>
+      <h1 class="title" lang="ar" dir="rtl" style="font-size:clamp(34px,10vw,46px)">الْفَاعِلُ: سَارَة</h1>
+      <p class="sub">Kasus terpecahkan. Pelakunya Sarah.</p>
+    </div>
+    <div class="card">
+      <p><b>Bagaimana kamu bisa tahu?</b></p>
+      <p>Catatan di bawah pintu ditulis seorang mahasiswi, jadi Khalid dan Ahmad tersisih (dan keduanya juga punya alibi). Laila memang membawa tas besar, tetapi penjaga melihatnya keluar <b>sebelum</b> Zuhur, saat buku masih ada. Sarah masuk gedung <b>setelah</b> Zuhur, ketika pintu terbuka, lalu berbohong bahwa ia tidak masuk kampus.</p>
+    </div>
+    <div class="card">
+      <p class="speaker">Epilog</p>
+      ${ENDING.map(l => `<div class="dialog"><p class="speaker">${l.sp}</p><p class="ar" lang="ar" dir="rtl">${l.ar}</p><p class="trans">${l.tr}</p></div>`).join('')}
+    </div>
+    <div class="card">
+      <p class="rank" lang="ar" dir="rtl">${rank.ar}</p>
+      <p style="text-align:center;margin:0" class="muted">${rank.id}</p>
+      <div class="stats">
+        <div><b>${G.mistakes}</b><span>Jawaban salah</span></div>
+        <div><b>${G.hints}</b><span>Bantuan dipakai</span></div>
+        <div><b>${G.wrongAcc}</b><span>Salah tuduh</span></div>
+      </div>
+      <div class="actions"><button class="btn block" data-act="restart">Main lagi</button></div>
+    </div>`;
+  window.scrollTo(0,0);
+}
+
+/* =========================================================
+   EVENTS
+   ========================================================= */
+let lastScene = null;
+$app.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]');
+  if(!b || b.disabled) return;
+  const a = b.dataset.act, v = b.dataset.v;
+  const s = SC ? SCENES[SC.id] : null;
+  switch(a){
+    case 'start': case 'hub': viewHub(); window.scrollTo(0,0); break;
+    case 'scene': lastScene = v; openScene(v); window.scrollTo(0,0); break;
+    case 'notebook': { const from = V==='scene' ? 'scene' : 'hub'; viewNotebook(from); window.scrollTo(0,0); break; }
+    case 'backscene': viewScene(); window.scrollTo(0,0); break;
+    case 'play': speak(s.text); break;
+    case 'showText': addHint(SC.id+':text'); SC.textShown = true; viewScene(); break;
+    case 'showTr': addHint(SC.id+':tr'); SC.trShown = true; viewScene(); break;
+    case 'askpick': {
+      const o = s.ask.opts[+v];
+      if(o.ok){ SC.askDone = true; SC.askMsg = null; viewScene(); }
+      else { G.mistakes++; SC.askWrong[+v] = true; SC.askMsg = o.why; viewScene(); }
+      break;
+    }
+    case 'answer': {
+      const q = s.qs[SC.qi];
+      if(+v === q.a){ SC.solved = true; } else { G.mistakes++; SC.wrong[+v] = true; }
+      viewScene(); break;
+    }
+    case 'next': {
+      if(SC.qi < s.qs.length-1){ SC.qi++; SC.solved = false; viewScene(); }
+      else {
+        SC.qi = s.qs.length; G.done[SC.id] = true;
+        if(!G.clues.includes(s.clue.id)) G.clues.push(s.clue.id);
+        viewScene();
+      }
+      break;
+    }
+    case 'accuse': AC = {suspect:null, picks:[], msg:null}; viewAccuse(); window.scrollTo(0,0); break;
+    case 'pickSus': AC.suspect = v; AC.msg = null; viewAccuse(); break;
+    case 'pickClue': {
+      if(AC.picks.includes(v)) AC.picks = AC.picks.filter(x => x!==v);
+      else { AC.picks.push(v); if(AC.picks.length>2) AC.picks.shift(); }
+      AC.msg = null; viewAccuse(); break;
+    }
+    case 'submitAcc': judge(); window.scrollTo(0,0); break;
+    case 'restart': newGame(); AC = null; viewIntro(); window.scrollTo(0,0); break;
+  }
+});
+
+viewIntro();
+</script>
+</body>
+</html>
